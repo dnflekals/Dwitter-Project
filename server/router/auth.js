@@ -1,15 +1,41 @@
-import express from "express";
-import "express-async-errors";
-import * as authController from "../controller/auth.js";
+import express from 'express';
+import {} from 'express-async-errors';
+import { body } from 'express-validator';
+import { validate } from '../middleware/validator.js';
+import * as authController from '../controller/auth.js';
+import { isAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post("/signup", authController.signup);
+const validateCredential = [
+  body('username')
+    .trim()
+    .notEmpty()
+    .withMessage('username should be at least 5 characters'),
+  body('password')
+    .trim()
+    .isLength({ min: 5 })
+    .withMessage('password should be at least 5 characters'),
+  validate,
+];
 
-router.post("/login", authController.login);
+const validateSignup = [
+  ...validateCredential,
+  body('name').notEmpty().withMessage('name is missing'),
+  body('email').isEmail().normalizeEmail().withMessage('invalid email'),
+  body('url')
+    .isURL()
+    .withMessage('invalid URL')
+    .optional({ nullable: true, checkFalsy: true }),
+  validate,
+];
+router.post('/signup', validateSignup, authController.signup);
 
-router.get("/me", (req, res, next) => {
-  res.status(201).json(token);
-});
+router.post('/login', validateCredential, authController.login);
+
+// 로그인 후, 유효한지 아닌지 확인하는 API
+// 따라서 isAuth를 통해 유효한 사람인지 아닌지 확인하고
+// controller에서 처리해준다.
+router.get('/me', isAuth, authController.me);
 
 export default router;
