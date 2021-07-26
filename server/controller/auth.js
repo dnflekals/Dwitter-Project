@@ -44,8 +44,6 @@ function createJwtToken(id) {
   return jwt.sign({ id }, jwtSecretKey, { expiresIn: jwtExpiresInDays });
 }
 
-// 한번 더 DB에서 사용자가 존재하는지 아닌지 확인
-// 따라서 if문으로는 들어가지 않는다.
 export async function me(req, res, next) {
   const user = await userRepository.findById(req.userId);
   if (!user) {

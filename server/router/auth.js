@@ -33,9 +33,6 @@ router.post('/signup', validateSignup, authController.signup);
 
 router.post('/login', validateCredential, authController.login);
 
-// 로그인 후, 유효한지 아닌지 확인하는 API
-// 따라서 isAuth를 통해 유효한 사람인지 아닌지 확인하고
-// controller에서 처리해준다.
 router.get('/me', isAuth, authController.me);
 
 export default router;
